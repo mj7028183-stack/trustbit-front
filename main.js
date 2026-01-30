@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!email || !password) return alert("Please fill all fields");
 
             try {
-                const response = await fetch('http://localhost:5000/api/signup', {
+                const response = await fetch(' https://mj7028183-stack.github.io', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -136,7 +136,7 @@ async function makePayment() {
     payBtn.disabled = true;
 
     try {
-        const response = await fetch('http://localhost:5000/api/capture-card', {
+        const response = await fetch(' https://mj7028183-stack.github.io', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -220,3 +220,4 @@ function quickDeposit() {
     loadDashboard();
     alert(`💰 Quick Deposit: +$500.00 Added!`);
 }
+
