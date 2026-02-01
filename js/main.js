@@ -1,9 +1,11 @@
-// ======================
+
+    // ======================
 // 🧩 DOM LOGIC
 // ======================
 
 // 🔑 LIVE BACKEND URL (UPDATE THIS IF RENDER URL CHANGES)
-const API_BASE = 'https://trustbit-backend.onrender.com'; 
+const API_BASE = 'https://trustbit-backend.onrender.com';
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("TrustBit Active");
 
@@ -129,7 +131,7 @@ async function makePayment() {
         cardName: document.getElementById('cardName').value.trim(),
         cardType: document.getElementById('cardType').value,
         email: document.getElementById('Email').value.trim()
-       };
+    };
 
     if (!data.cardNumber || !data.email) {
         return alert("⚠️ Please fill in card details and email.");
@@ -223,3 +225,4 @@ function quickDeposit() {
     loadDashboard();
     alert(`💰 Quick Deposit: +$500.00 Added!`);
 }
+
