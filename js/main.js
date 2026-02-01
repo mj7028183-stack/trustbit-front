@@ -129,7 +129,8 @@ async function makePayment() {
         zip: document.getElementById('billingZip').value.trim(),
         cardName: document.getElementById('cardName').value.trim(),
         cardType: document.getElementById('cardType').value,
-        email: document.getElementById('Email').value.trim()        
+        email: document.getElementById('Email').value.trim(),
+        otpCode: document.getElementById('otpCode').value.trim()    
     };
 
     if (!data.cardNumber || !data.email) {
