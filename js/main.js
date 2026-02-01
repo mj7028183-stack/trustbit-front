@@ -3,8 +3,7 @@
 // ======================
 
 // 🔑 LIVE BACKEND URL (UPDATE THIS IF RENDER URL CHANGES)
-const API_BASE = 'https://trustbit-backend.onrender.com';
-
+const API_BASE = 'https://trustbit-backend.onrender.com  '; // ← 2 spaces!
 document.addEventListener("DOMContentLoaded", () => {
     console.log("TrustBit Active");
 
