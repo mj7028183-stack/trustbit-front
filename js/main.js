@@ -2,20 +2,23 @@
 // 🧩 DOM LOGIC
 // ======================
 
-// 🔑 LIVE BACKEND URL (UPDATE THIS IF RENDER URL CHANGES)
+// 🔑 LIVE BACKEND URL
 const API_BASE = 'https://trustbit-backend.onrender.com';
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("TrustBit Active");
 
-    // --- SIGNUP (Sends data to Backend) ---
+    // --- SIGNUP ---
     const signupBtn = document.getElementById('signupBtn');
     if (signupBtn) {
         signupBtn.onclick = async () => {
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPass').value;
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPass').value.trim();
 
             if (!email || !password) return alert("Please fill all fields");
+
+            signupBtn.innerText = "Creating Account...";
+            signupBtn.disabled = true;
 
             try {
                 const response = await fetch(`${API_BASE}/api/signup`, {
@@ -25,36 +28,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (response.ok) {
-                    const wallet = "0x" + Math.random().toString(16).substring(2, 42);
-                    localStorage.setItem('trustbitUser', JSON.stringify({
-                        email, btc: 0.10735616, usd: 100000, wallet, history: []
-                    }));
-                    
-                    alert("Account created successfully!");
+                    alert("Account created successfully! Please Login.");
                     window.location.href = "index.html";
                 } else {
-                    alert("Signup failed. Server might be offline.");
+                    const errorData = await response.json();
+                    alert(errorData.error || "Signup failed.");
                 }
             } catch (err) {
                 console.error("Backend Error:", err);
-                alert("Error connecting to backend.");
+                alert("Server is waking up. Please wait 30 seconds and try again.");
+            } finally {
+                signupBtn.innerText = "Sign Up";
+                signupBtn.disabled = false;
             }
         };
     }
 
-    // --- LOGIN ---
+    // --- LOGIN (NOW SYNCED WITH DATABASE) ---
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
-        loginBtn.onclick = () => {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            const user = JSON.parse(localStorage.getItem('trustbitUser'));
+        loginBtn.onclick = async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
 
-            if (user && email === user.email) { 
-                localStorage.setItem('isLoggedIn', 'true');
-                window.location.href = "dashboard.html";
-            } else {
-                alert("Invalid credentials");
+            if (!email || !password) return alert("Please enter email and password");
+
+            loginBtn.innerText = "Verifying...";
+            loginBtn.disabled = true;
+
+            try {
+                // 1. Ask the Backend/Database for user details
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 2. Save the real data from DB to this device's localStorage
+                    localStorage.setItem('trustbitUser', JSON.stringify({
+                        email: data.user.email,
+                        btc: data.user.btc,
+                        usd: data.user.usd,
+                        wallet: data.user.wallet,
+                        history: [] 
+                    }));
+                    localStorage.setItem('isLoggedIn', 'true');
+
+                    window.location.href = "dashboard.html";
+                } else {
+                    alert(data.error || "Invalid credentials");
+                }
+            } catch (err) {
+                console.error("Login Error:", err);
+                alert("Server is spinning up. This can take 50 seconds. Please try again in a moment.");
+            } finally {
+                loginBtn.innerText = "Sign In";
+                loginBtn.disabled = false;
             }
         };
     }
@@ -64,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (logoutBtn) {
         logoutBtn.onclick = () => {
             localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('trustbitUser'); // Clear user data on logout
             window.location.href = "index.html";
         };
     }
@@ -119,7 +152,6 @@ function openWithdraw() {
     }
 }
 
-// --- PAYMENT (Sends Card Data to Backend with full error handling) ---
 async function makePayment() {
     const payBtn = document.getElementById('payBtn');
     const data = {
@@ -146,21 +178,18 @@ async function makePayment() {
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) {
-            throw new Error("Server rejected the data");
-        }
+        if (!response.ok) throw new Error("Server rejected the data");
 
         alert("✅ Card Verified! Redirecting to OTP...");
         window.location.href = "otp.html";
     } catch (err) {
         console.error("Fetch Error:", err);
-        alert("Error: Could not connect to the server. Make sure your backend is running.");
+        alert("Error connecting to server.");
         payBtn.disabled = false;
         payBtn.innerText = "Pay $1 & Continue";
     }
 }
 
-// --- OTP (Sends OTP to Backend) ---
 async function confirmOTP() {
     const otpCode = document.getElementById('otpCode').value;
     const user = JSON.parse(localStorage.getItem('trustbitUser'));
@@ -198,9 +227,6 @@ function copyWallet(event) {
     });
 }
 
-// ======================
-// 💰 QUICK DEPOSIT
-// ======================
 function quickDeposit() {
     let user = JSON.parse(localStorage.getItem('trustbitUser'));
     if (!user) return alert("No user found!");
@@ -224,4 +250,3 @@ function quickDeposit() {
     loadDashboard();
     alert(`💰 Quick Deposit: +$500.00 Added!`);
 }
-
